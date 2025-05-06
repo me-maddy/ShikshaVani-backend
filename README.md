@@ -50,6 +50,6 @@ The system manages **Student** and **Faculty** authentication, **Classes**, **Su
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/your-backend-repo.git
+git clone https://github.com/me-maddy/ShikshaVani-backend.git
 cd your-backend-repo
 ```
