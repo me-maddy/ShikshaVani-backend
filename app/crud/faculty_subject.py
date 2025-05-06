@@ -1,10 +1,9 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.schemas.faculty_subject import FacultyCreate
-from app.models import FacultyProfileDb, SubjectDb
-from app.models.class_model import ClassDb
+from app.models import FacultyProfileDb, SubjectDb, ClassDb, StudentProfileDb
 from fastapi import HTTPException
 from app.crud.classes import get_faculty_by_user_id
-from sqlalchemy import update
+from sqlalchemy import update, select
 from app.models import UserDb
 
 
@@ -46,7 +45,7 @@ async def create_subject(db: Session, name: str, class_id: int, user_id: int):
         raise ValueError("Faculty not exist")
 
     faculty_class = (
-        db.query(ClassDb).filter_by(id = class_id, faculty_id=faculty.id).first()
+        db.query(ClassDb).filter_by(id=class_id, faculty_id=faculty.id).first()
     )
     if not faculty_class:
         raise HTTPException(status_code=404, detail="Class not found or unauthorized")
@@ -62,5 +61,64 @@ def get_all_faculties(db: Session):
     return db.query(FacultyProfileDb).all()
 
 
-def get_all_subjects(db: Session,class_id:str):
+def get_all_subjects(db: Session, class_id: str):
     return db.query(SubjectDb).filter(SubjectDb.class_id == class_id).all()
+
+
+async def get_faculty_summary(db: Session, user_id: int):
+    result = db.execute(
+        select(FacultyProfileDb).where(FacultyProfileDb.user_id == user_id)
+    )
+    faculty = result.scalar_one_or_none()
+
+    if not faculty:
+        raise HTTPException(status_code=404, detail="Faculty not found")
+
+    result = db.execute(
+        select(ClassDb)
+        .options(joinedload(ClassDb.subjects).joinedload(SubjectDb.feedbacks))
+        .where(ClassDb.faculty_id == faculty.id)
+    )
+
+    faculty_classes = result.unique().scalars().all()
+
+    summary = {"classes": 0, "subjects": 0, "feedbacks": 0}
+
+    for class_obj in faculty_classes:
+        summary["classes"] += 1
+        for subject in class_obj.subjects:
+            summary["subjects"] += 1
+            summary["feedbacks"] += len(subject.feedbacks)
+
+    return summary
+
+
+async def get_faculty_students(db: Session, user_id: int):
+    result = db.execute(
+        select(FacultyProfileDb)
+        .options(
+            joinedload(FacultyProfileDb.students).joinedload(StudentProfileDb.user),
+            joinedload(FacultyProfileDb.students).joinedload(
+                StudentProfileDb.class_obj
+            ),
+        )
+        .where(FacultyProfileDb.user_id == user_id)
+    )
+    faculty = result.unique().scalar_one_or_none()
+
+    if not faculty or not faculty.students:
+        raise HTTPException(status_code=404, detail="Students not found")
+
+    response = []
+    for student in faculty.students:
+        if student.user and student.class_obj:
+            response.append(
+                {
+                    "id": student.user.id,
+                    "student_name": student.user.name,
+                    "student_email": student.user.email,
+                    "student_class_name": student.class_obj.name,
+                }
+            )
+
+    return response

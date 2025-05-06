@@ -15,3 +15,5 @@ class ClassDb(Base):
     )
 
     subjects = relationship("SubjectDb", back_populates="class_obj")
+    students = relationship("StudentProfileDb", back_populates="class_obj")
+    faculty = relationship("FacultyProfileDb", back_populates="classes")

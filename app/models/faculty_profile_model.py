@@ -1,5 +1,6 @@
 from app.database import Base
 from sqlalchemy import Column, String, Integer, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import relationship
 
 
 class FacultyProfileDb(Base):
@@ -11,3 +12,7 @@ class FacultyProfileDb(Base):
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
 
     __table_args__ = (UniqueConstraint("user_id", name="unique_user_faculty_profile"),)
+
+    students = relationship("StudentProfileDb", back_populates="faculty")
+    user = relationship("UserDb", back_populates="faculty")
+    classes = relationship("ClassDb", back_populates="faculty")

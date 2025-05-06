@@ -14,3 +14,5 @@ class UserDb(Base):
     is_registered = Column(Boolean, default=False)
 
     feedbacks = relationship("FeedbackDb", back_populates="student")
+    faculty = relationship("FacultyProfileDb", back_populates="user")
+    studentProfile = relationship("StudentProfileDb", back_populates="user")
