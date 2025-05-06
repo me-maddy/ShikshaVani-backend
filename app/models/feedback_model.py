@@ -1,9 +1,10 @@
 from sqlalchemy import Column, ForeignKey, Integer, Text, UniqueConstraint
 from app.database import Base
 from sqlalchemy.orm import relationship
+from app.models.timestamp_mixin import TimeStampMixin
 
 
-class FeedbackDb(Base):
+class FeedbackDb(Base, TimeStampMixin):
     __tablename__ = "feedbacks"
 
     id = Column(Integer, primary_key=True, index=True)

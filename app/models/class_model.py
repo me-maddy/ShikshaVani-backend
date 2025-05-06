@@ -7,7 +7,7 @@ class ClassDb(Base):
     __tablename__ = "classes"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
     faculty_id = Column(Integer, ForeignKey("faculty_profile_table.id"))
 
     __table_args__ = (

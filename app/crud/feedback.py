@@ -108,6 +108,9 @@ async def get_faculty_feedbacks(db: Session, user_id: int):
                             "studentName": feedback.student.name,
                             "studentEmail": feedback.student.email,
                             "id": feedback.id,
+                            "date": (
+                                feedback.created_at if feedback.created_at else None
+                            ),
                         }
                     )
                 class_dict["subjects"].append(subject_dict)

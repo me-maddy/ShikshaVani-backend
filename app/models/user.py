@@ -1,9 +1,10 @@
 from sqlalchemy import Column, String, Integer, Boolean
 from app.database import Base
 from sqlalchemy.orm import relationship
+from app.models.timestamp_mixin import TimeStampMixin
 
 
-class UserDb(Base):
+class UserDb(Base, TimeStampMixin):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)

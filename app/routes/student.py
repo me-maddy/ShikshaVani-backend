@@ -19,6 +19,14 @@ async def upload_profile_details(
     db: Session = Depends(get_db),
     current_user: UserDb = Depends(is_student),
 ):
-    return await update_student_profile(
+    profile_response = await update_student_profile(
         db, user_profile=user_profile, user_id=current_user.id
     )
+    return {
+        "class_id": profile_response.class_id,
+        "faculty_id": profile_response.faculty_id,
+        "is_registered": profile_response.is_registered,
+        "id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email,
+    }

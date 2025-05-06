@@ -124,4 +124,8 @@ async def update_student_profile(
     db.execute(query)
     db.commit()
     db.refresh(new_student_profile)
-    return {"user_id": user_id}
+    return {
+        "class_id": new_student_profile.class_id,
+        "faculty_id": new_student_profile.faculty_id,
+        "is_registered": True,
+    }
